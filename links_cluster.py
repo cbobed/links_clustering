@@ -110,6 +110,28 @@ class LinksCluster:
                 assigned_cluster = len(self.clusters) - 1
         return assigned_cluster
 
+    def predict_frozen(self, new_vector: np.ndarray) -> int:
+        """Predict a cluster id for new_vector without updating the current clusters. It returns -1 if it has not been
+        already initialized"""
+
+        if len(self.clusters) == 0:
+            return -1
+
+        best_subcluster = None
+        best_similarity = -np.inf
+        best_subcluster_cluster_id = None
+        best_subcluster_id = None
+        for cl_idx, cl in enumerate(self.clusters):
+            for sc_idx, sc in enumerate(cl):
+                cossim = 1.0 - cosine(new_vector, sc.centroid)
+                if cossim > best_similarity:
+                    best_subcluster = sc
+                    best_similarity = cossim
+                    best_subcluster_cluster_id = cl_idx
+                    best_subcluster_id = sc_idx
+        assigned_cluster = best_subcluster_cluster_id
+        return assigned_cluster
+
     @staticmethod
     def add_edge(sc1: Subcluster, sc2: Subcluster):
         """Add an edge between subclusters sc1, and sc2."""
